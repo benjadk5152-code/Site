@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>♡</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23ec7f9c' d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=DM+Serif+Display&family=Dancing+Script:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="booting">
+
+<!-- ============ LOGIN ============ -->
+<section id="login">
+  <div class="pw-stage" id="pwStage">
+    <svg class="big-heart" viewBox="0 0 24 24" aria-hidden="true">
+      <defs><linearGradient id="hg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe3ea"/><stop offset="1" stop-color="#f7b3c5"/></linearGradient></defs>
+      <path fill="url(#hg)" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+    </svg>
+    <form class="pw-card" id="pwForm" autocomplete="off">
+      <div class="pw-bears"><div class="b wiggle" data-bear="dudu"></div><div class="b wiggle late" data-bear="bubu"></div></div>
+      <div class="pw-row">
+        <input type="password" id="pw" placeholder="password" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Password">
+        <button type="submit" aria-label="Enter">→</button>
+      </div>
+      <div class="err" id="err"></div>
+    </form>
+  </div>
+</section>
+
+<!-- ============ APP ============ -->
+<div id="app">
+  <header>
+    <div class="brand"><div class="b" data-bear="dudu" data-head></div><div class="b" data-bear="bubu" data-head></div>&nbsp;<span data-text="siteTitle"></span></div>
+    <div class="who"><span id="whoLabel"></span><button class="btn ghost" id="logout">lock</button></div>
+  </header>
+
+  <main>
+    <!-- BUBU (her) -->
+    <section id="bubuView" hidden>
+      <div class="hero">
+        <span class="pill"><b>♥</b> <span data-text="herPill"></span></span>
+        <h1 class="title" data-text="herTitle"></h1>
+        <p class="script" data-text="herSubtitle"></p>
+        <div class="tile"><div class="b wiggle" data-bear="dudu"></div><div class="b wiggle late" data-bear="bubu"></div></div>
+      </div>
+      <div class="env-zone" id="envZone"></div>
+      <div class="panel" style="margin-top:44px">
+        <div class="sec-head"><h2>our letters</h2><span class="tiny">tap one to read again</span></div>
+        <div class="list" id="bubuHistory"></div>
+      </div>
+    </section>
+
+    <!-- DUDU (him) -->
+    <section id="duduView" hidden>
+      <div class="hero">
+        <span class="pill"><b>♥</b> <span data-text="myPill"></span></span>
+        <h1 class="title" data-text="myTitle"></h1>
+        <p class="script" data-text="mySubtitle"></p>
+      </div>
+      <div class="grid2" style="margin-top:30px">
+        <div class="panel compose">
+          <h2 style="margin-bottom:14px">new letter</h2>
+          <div class="kinds" id="kindChips"></div>
+          <div class="step"><i></i> the opener</div>
+          <input class="field" id="hlInput" maxlength="60" value="Wanna go on a date?">
+          <div class="chips" id="hlChips"></div>
+          <div class="step"><i></i> your message</div>
+          <textarea class="field" id="msgText" placeholder="Saturday picnic in the park, I'll bring strawberries 🍓"></textarea>
+          <div id="dateOnly">
+            <div class="step"><i></i> when <span style="color:var(--muted);font-weight:400">(optional)</span></div>
+            <input class="field" type="datetime-local" id="msgWhen">
+            <div class="step"><i></i> season</div>
+            <div class="chips" id="seasonChips" style="margin-top:0"></div>
+            <div class="step"><i></i> what kind of date</div>
+            <div class="chips" id="typeChips" style="margin-top:0"></div>
+            <div class="auto-note" id="autoNote"></div>
+          </div>
+          <div class="scene mini" id="miniScene"></div>
+          <div class="step"><i></i> how the letter opens</div>
+          <div class="styles" id="styles"></div>
+          <div class="actions">
+            <button class="btn ghost" id="previewBtn">preview letter</button>
+            <button class="btn" id="sendBtn">seal &amp; send ♡</button>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="sec-head"><h2>sent letters</h2><span class="tiny">her answers</span></div>
+          <div class="list" id="sentList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SHARED BOARD -->
+    <section>
+      <div class="sec-head">
+        <div><h2>our board</h2><p class="script" style="font-size:22px">date plans &amp; little goals</p></div>
+        <div class="seg" id="filter"><button data-f="all" class="on">all</button><button data-f="plan">date plans</button><button data-f="goal">goals</button></div>
+      </div>
+      <div class="panel" style="padding-bottom:32px">
+        <form class="toolbar" id="noteForm">
+          <input class="field" id="noteText" maxlength="120" placeholder="write a new post-it…">
+          <div class="seg" id="noteType"><button type="button" data-t="plan" class="on">plan</button><button type="button" data-t="goal">goal</button></div>
+          <div class="swatches" id="swatches"></div>
+          <button class="btn" type="submit">stick it</button>
+        </form>
+        <div class="notes" id="notes"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- LETTER -->
+<div class="overlay" id="overlay">
+  <div class="scene" id="sceneBox"></div>
+  <div class="paper" id="paper">
+    <button class="x" id="closeLetter" aria-label="Close">×</button>
+    <div class="hl" id="lHl"></div>
+    <div class="body" id="lBody"></div>
+    <div class="when" id="lWhen"></div>
+    <div class="answer" id="lAnswer"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="settings.js"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>
