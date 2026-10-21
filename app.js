@@ -14,9 +14,8 @@ const fb = initializeApp(firebaseConfig);
 const auth = getAuth(fb);
 const db = getFirestore(fb);
 
-// Firebase wants passwords of 6+ characters, so this is added to whatever is typed.
-// Set each account's password in Firebase to: typed password (lowercase) + this. See SETUP.md.
-const PASSWORD_SUFFIX = '-bubududu';
+// Each of you logs in with a 6-digit code. In Firebase, the account's password is exactly that code.
+const CODE_LENGTH = 6;
 
 const cap = s => s.charAt(0).toUpperCase()+s.slice(1);
 const fill = s => s.replaceAll('{her}', SETTINGS.herName).replaceAll('{me}', SETTINGS.myName)
@@ -372,22 +371,27 @@ function startLogin(){
 }
 $('#pwForm').addEventListener('submit', async e=>{
   e.preventDefault();
-  const typed = $('#pw').value.trim().toLowerCase();
-  if(!typed) return;
+  const typed = $('#pw').value.replace(/\D/g,'');
+  if(typed.length !== CODE_LENGTH) return;
   const btn = $('#pwForm button'); btn.disabled = true;
   viaForm = true;
   let ok = false, tooMany = false;
   // the password decides who you are: try her account, then yours
   for(const account of [SETTINGS.herAccount, SETTINGS.myAccount]){
-    try{ await signInWithEmailAndPassword(auth, account, typed + PASSWORD_SUFFIX); ok = true; break; }
+    try{ await signInWithEmailAndPassword(auth, account, typed); ok = true; break; }
     catch(err){ if(err.code==='auth/too-many-requests'){ tooMany = true; break; } }
   }
   btn.disabled = false;
   if(!ok){
     viaForm = false;
     const c = $('#pwForm'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake');
-    $('#err').textContent = tooMany ? 'too many tries, wait a minute 🥺' : T('wrongPassword'); $('#pw').select();
+    $('#err').textContent = tooMany ? 'too many tries, wait a minute 🥺' : T('wrongPassword'); $('#pw').value = ''; $('#pw').focus();
   }
+});
+// digits only, and log in as soon as the 6th digit is typed
+$('#pw').addEventListener('input', ()=>{
+  const pw = $('#pw'); pw.value = pw.value.replace(/\D/g,'').slice(0, CODE_LENGTH);
+  if(pw.value.length === CODE_LENGTH) $('#pwForm').requestSubmit();
 });
 // stays signed in on that phone/computer until "lock" is pressed
 onAuthStateChanged(auth, user=>{
