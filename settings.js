@@ -62,4 +62,27 @@ const SETTINGS = {
     morning: 'Have the best day today, I’m so proud of you ♡',
     night:   'Thank you for today. Dream of us ♡',
   },
+
+  /* ---- her way in: the puzzle on the front page ----
+     She has to pick the right answer to each question to get to the next one.
+     Change "correct" to decide which answer is the right one (spell it exactly like the option).
+
+     The answer to the LAST question is not written in this file on purpose, so nobody can
+     read it here. It is her password in Firebase: the answer in lowercase with no spaces
+     (at least 6 characters). To change it, change her password in Firebase. */
+  puzzle: {
+    open:  'er du {her}? løs gåden ♡',
+    back:  '← tilbage',
+    wrong: 'prøv igen 🥺',
+    questions: [
+      { question: 'Hvem er den bedste sanger?',
+        options:  ['Taylor Swift', 'Olivia Rodrigo', 'Sabrina Carpenter'],
+        correct:  'Taylor Swift' },
+      { question: 'Hvad er den bedste dessert i Danmark?',
+        options:  ['Tarteletter', 'Brunsviger', 'Drømmekage'],
+        correct:  'Brunsviger' },
+    ],
+    finalQuestion:    'Hvad hed filmen, vi så i biografen sidst?',
+    finalPlaceholder: 'skriv svaret her',
+  },
 };

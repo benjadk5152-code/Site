@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=DM+Serif+Display&family=Dancing+Script:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=4">
 </head>
 <body class="booting">
 
@@ -27,7 +27,14 @@
         <button type="submit" aria-label="Enter">→</button>
       </div>
       <div class="err" id="err"></div>
+      <button type="button" class="link" id="puzzleOpen"></button>
     </form>
+    <div class="pw-card puzzle" id="puzzle" hidden>
+      <div class="pz-step" id="pzStep"></div>
+      <div id="pzBody"></div>
+      <div class="err" id="pzErr"></div>
+      <button type="button" class="link" id="puzzleBack"></button>
+    </div>
   </div>
 </section>
 
@@ -126,7 +133,7 @@
 </div>
 <div class="toast" id="toast"></div>
 
-<script src="settings.js?v=3"></script>
-<script type="module" src="app.js?v=3"></script>
+<script src="settings.js?v=4"></script>
+<script type="module" src="app.js?v=4"></script>
 </body>
 </html>

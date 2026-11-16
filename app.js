@@ -368,6 +368,7 @@ function startLogin(){
   $('#login').hidden = false; $('#app').style.display = 'none';
   $('#pwStage').classList.remove('unlocking');
   $('#pw').value = ''; $('#err').textContent = ''; setTimeout(()=>$('#pw').focus(), 50);
+  $('#puzzle').hidden = true; $('#pwForm').hidden = false;
   clearInterval(floatTimer);
 }
 $('#pwForm').addEventListener('submit', async e=>{
@@ -378,18 +379,62 @@ $('#pwForm').addEventListener('submit', async e=>{
   const btn = $('#pwForm button'); btn.disabled = true;
   viaForm = true;
   let ok = false, tooMany = false;
-  // the password decides who you are: try her account, then yours
-  for(const account of [SETTINGS.herAccount, SETTINGS.myAccount]){
-    try{ await signInWithEmailAndPassword(auth, account, typed); ok = true; break; }
-    catch(err){ if(err.code==='auth/too-many-requests'){ tooMany = true; break; } }
-  }
+  // the code box is your way in; she gets in through the puzzle below
+  try{ await signInWithEmailAndPassword(auth, SETTINGS.myAccount, typed); ok = true; }
+  catch(err){ tooMany = err.code==='auth/too-many-requests'; }
   btn.disabled = false;
   if(!ok){
     viaForm = false;
     const c = $('#pwForm'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake');
     $('#err').textContent = tooMany ? 'too many tries, wait a minute 🥺' : T('wrongPassword'); $('#pw').value = ''; $('#pw').focus();
   }
-});// stays signed in on that phone/computer until "lock" is pressed
+});
+
+/* ---------- her way in: the puzzle ---------- */
+const PZ = SETTINGS.puzzle;
+let pzStep = 0;
+// "Toy Story 5", "toy story 5" and "toystory5!" all count as the same answer
+const normalize = s => s.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+const shakeIt = n => { n.classList.remove('shake'); void n.offsetWidth; n.classList.add('shake'); };
+$('#puzzleOpen').textContent = fill(PZ.open);
+$('#puzzleBack').textContent = fill(PZ.back);
+$('#puzzleOpen').onclick = ()=>{ $('#pwForm').hidden = true; $('#puzzle').hidden = false; pzStep = 0; renderPuzzle(); };
+$('#puzzleBack').onclick = ()=>{ $('#puzzle').hidden = true; $('#pwForm').hidden = false; $('#pw').focus(); };
+function renderPuzzle(){
+  const box = $('#pzBody'); box.innerHTML = ''; $('#pzErr').textContent = '';
+  $('#pzStep').textContent = (pzStep+1)+' / '+(PZ.questions.length+1);
+  if(pzStep < PZ.questions.length){
+    // multiple choice: only the right answer leads to the next question
+    const q = PZ.questions[pzStep];
+    box.appendChild(el('div','pz-q',fill(q.question)));
+    q.options.forEach(o=>{
+      const b = el('button','pz-opt',o); b.type = 'button';
+      b.onclick = ()=>{
+        if(o===q.correct){ b.classList.add('right'); setTimeout(()=>{ pzStep++; renderPuzzle(); }, 500); }
+        else { b.classList.add('wrong'); shakeIt($('#puzzle')); $('#pzErr').textContent = fill(PZ.wrong); setTimeout(()=>b.classList.remove('wrong'), 700); }
+      };
+      box.appendChild(b);
+    });
+    return;
+  }
+  // last question: she writes the answer herself, and Firebase checks it (it is her password)
+  box.appendChild(el('div','pz-q',fill(PZ.finalQuestion)));
+  const form = el('form','pw-row'); const input = el('input'); const go = el('button',null,'→');
+  input.type = 'text'; input.placeholder = PZ.finalPlaceholder; input.autocomplete = 'off'; input.setAttribute('aria-label','Answer'); go.type = 'submit';
+  form.append(input, go); box.appendChild(form); setTimeout(()=>input.focus(), 50);
+  form.onsubmit = async e=>{
+    e.preventDefault();
+    const answer = normalize(input.value); if(!answer) return;
+    go.disabled = true; viaForm = true;
+    try{ await signInWithEmailAndPassword(auth, SETTINGS.herAccount, answer); }
+    catch(err){
+      viaForm = false; go.disabled = false; shakeIt($('#puzzle')); input.select();
+      $('#pzErr').textContent = err.code==='auth/too-many-requests' ? 'too many tries, wait a minute 🥺' : fill(PZ.wrong);
+    }
+  };
+}
+
+// stays signed in on that phone/computer until "lock" is pressed
 onAuthStateChanged(auth, user=>{
   document.body.classList.remove('booting');
   if(!user){ stopListening(); startLogin(); return; }

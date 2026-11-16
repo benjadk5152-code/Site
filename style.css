@@ -323,3 +323,14 @@
   .a-stretch{transform-origin:center bottom;animation:stretch 3.4s ease-in-out infinite}
   @keyframes stretch{0%,60%,100%{transform:none}25%{transform:translateY(-8px) scale(1.04)}}
   .booting #login,.booting #app{visibility:hidden}
+
+  /* ---------- her puzzle on the front page ---------- */
+  #puzzleOpen{display:block;margin:6px auto 0;font-size:13px;color:var(--purple)}
+  .puzzle{width:min(280px,76%);margin-top:0;padding:16px 16px 12px;border-radius:22px;background:rgba(255,255,255,.92);box-shadow:0 14px 40px rgba(200,90,130,.2);text-align:center}
+  .pz-step{font-size:10px;font-weight:600;letter-spacing:.2em;color:var(--muted)}
+  .pz-q{font-family:'DM Serif Display',serif;font-size:19px;line-height:1.25;margin:8px 0 12px}
+  .pz-opt{display:block;width:100%;margin-top:8px;padding:10px 12px;border-radius:999px;background:#fff;border:1.5px solid #f3d3dd;font-size:14px;font-weight:500;transition:.15s}
+  .pz-opt:hover{border-color:var(--pink);background:var(--pink-soft)}
+  .pz-opt.right{background:#ddf4e8;border-color:#3fae7c;color:#237a53}
+  .pz-opt.wrong{background:#fde4ec;border-color:#e86f93;color:#c04a6b}
+  .puzzle .pw-row{box-shadow:0 0 0 1.5px #f3d3dd}
