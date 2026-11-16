@@ -378,17 +378,33 @@ $('#pwForm').addEventListener('submit', async e=>{
   if(typed.length < MIN_CODE){ $('#err').textContent = T('wrongPassword'); return; }
   const btn = $('#pwForm button'); btn.disabled = true;
   viaForm = true;
-  let ok = false, tooMany = false;
-  // the code box is your way in; she gets in through the puzzle below
+  let ok = false, code = '';
+  // the code box is your way in; her puzzle answer is accepted here too
   try{ await signInWithEmailAndPassword(auth, SETTINGS.myAccount, typed); ok = true; }
-  catch(err){ tooMany = err.code==='auth/too-many-requests'; }
+  catch(err){ code = err.code || String(err); }
+  if(!ok && code!=='auth/too-many-requests'){ const her = await tryHer(typed); ok = her.ok; if(!ok && her.code==='auth/too-many-requests') code = her.code; }
   btn.disabled = false;
   if(!ok){
     viaForm = false;
     const c = $('#pwForm'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake');
-    $('#err').textContent = tooMany ? 'too many tries, wait a minute 🥺' : T('wrongPassword'); $('#pw').value = ''; $('#pw').focus();
+    $('#err').textContent = code==='auth/too-many-requests' ? fill(SETTINGS.puzzle.tooMany) : T('wrongPassword'); $('#pw').value = ''; $('#pw').focus();
+    $('#err').appendChild(el('div','pz-code', code.replace('auth/','')));   // Firebase's own reason, for troubleshooting
   }
 });
+
+// Logs in to her account with her puzzle answer. Her Firebase password should be the answer in
+// lowercase without spaces, but the common ways of having saved it are tried as well.
+async function tryHer(raw){
+  const flat = normalize(raw);
+  const tries = [...new Set([flat, cap(flat), raw, raw.toLowerCase(), raw.replace(/\s+/g,''),
+                             raw.toLowerCase().split(/\s+/).map(cap).join(' ')])].filter(t=>t.length >= MIN_CODE);
+  let code = '';
+  for(const answer of tries){
+    try{ await signInWithEmailAndPassword(auth, SETTINGS.herAccount, answer); return { ok:true }; }
+    catch(err){ code = err.code || String(err); if(code==='auth/too-many-requests') break; }
+  }
+  return { ok:false, code };
+}
 
 /* ---------- her way in: the puzzle ---------- */
 const PZ = SETTINGS.puzzle;
@@ -431,18 +447,11 @@ function renderPuzzle(){
     e.preventDefault();
     const raw = input.value.trim(); if(!normalize(raw)) return;
     go.disabled = true; viaForm = true;
-    // the Firebase password should be the answer in lowercase without spaces,
-    // but it also works if it was saved exactly as typed or in lowercase with spaces
-    const tries = [...new Set([normalize(raw), raw, raw.toLowerCase()])];
-    let ok = false, tooMany = false, code = '';
-    for(const answer of tries){
-      try{ await signInWithEmailAndPassword(auth, SETTINGS.herAccount, answer); ok = true; break; }
-      catch(err){ code = err.code || String(err); if(code==='auth/too-many-requests'){ tooMany = true; break; } }
-    }
+    const { ok, code } = await tryHer(raw);
     if(!ok){
       viaForm = false; go.disabled = false; input.select();
-      pzFail(tooMany ? fill(PZ.tooMany) : '');
-      $('#pzErr').appendChild(el('div','pz-code', code.replace('auth/','')));   // Firebase's own reason, for troubleshooting
+      pzFail(code==='auth/too-many-requests' ? fill(PZ.tooMany) : '');
+      $('#pzErr').appendChild(el('div','pz-code', (code || '').replace('auth/','')));   // Firebase's own reason, for troubleshooting
     }
   };
 }
