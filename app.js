@@ -393,7 +393,7 @@ $('#pwForm').addEventListener('submit', async e=>{
 /* ---------- her way in: the puzzle ---------- */
 const PZ = SETTINGS.puzzle;
 let pzStep = 0, pzWrong = 0;
-// "Toy Story 5", "toy story 5" and "toystory5!" all count as the same answer
+// capital letters, spaces and punctuation in her answer do not matter
 const normalize = s => s.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
 const shakeIt = n => { n.classList.remove('shake'); void n.offsetWidth; n.classList.add('shake'); };
 // a wrong answer: "try again" the first time, a little nudge from the second time on
@@ -431,17 +431,18 @@ function renderPuzzle(){
     e.preventDefault();
     const raw = input.value.trim(); if(!normalize(raw)) return;
     go.disabled = true; viaForm = true;
-    // the Firebase password should be the answer in lowercase without spaces ("toystory5"),
+    // the Firebase password should be the answer in lowercase without spaces,
     // but it also works if it was saved exactly as typed or in lowercase with spaces
     const tries = [...new Set([normalize(raw), raw, raw.toLowerCase()])];
-    let ok = false, tooMany = false;
+    let ok = false, tooMany = false, code = '';
     for(const answer of tries){
       try{ await signInWithEmailAndPassword(auth, SETTINGS.herAccount, answer); ok = true; break; }
-      catch(err){ if(err.code==='auth/too-many-requests'){ tooMany = true; break; } }
+      catch(err){ code = err.code || String(err); if(code==='auth/too-many-requests'){ tooMany = true; break; } }
     }
     if(!ok){
       viaForm = false; go.disabled = false; input.select();
       pzFail(tooMany ? fill(PZ.tooMany) : '');
+      $('#pzErr').appendChild(el('div','pz-code', code.replace('auth/','')));   // Firebase's own reason, for troubleshooting
     }
   };
 }

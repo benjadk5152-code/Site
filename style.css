@@ -340,3 +340,4 @@
   .pz-opt.right{background:#ddf4e8;border-color:#3fae7c;color:#237a53}
   .pz-opt.wrong{background:#fde4ec;border-color:#e86f93;color:#c04a6b}
   .puzzle .pw-row{box-shadow:0 0 0 1.5px #f3d3dd}
+  .pz-code{font-size:10px;color:var(--muted);margin-top:2px}
