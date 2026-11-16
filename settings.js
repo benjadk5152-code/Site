@@ -74,6 +74,8 @@ const SETTINGS = {
     open:  'er du {her}? løs gåden ♡',
     back:  '← tilbage',
     wrong: 'prøv igen 🥺',
+    wrongTwice: 'kom nu {her} 🙄',                       // from her 2nd wrong answer on the same question
+    tooMany: 'for mange forsøg, vent et par minutter 🥺',
     questions: [
       { question: 'Hvem er den bedste sanger?',
         options:  ['Taylor Swift', 'Olivia Rodrigo', 'Sabrina Carpenter'],

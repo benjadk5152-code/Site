@@ -325,7 +325,13 @@
   .booting #login,.booting #app{visibility:hidden}
 
   /* ---------- her puzzle on the front page ---------- */
-  #puzzleOpen{display:block;margin:6px auto 0;font-size:13px;color:var(--purple)}
+  .pz-open{display:inline-flex;align-items:center;gap:8px;margin-top:6px;padding:7px 16px 7px 9px;border-radius:999px;background:#fff;
+    box-shadow:0 6px 18px rgba(200,90,130,.18);font-family:'Dancing Script',cursive;font-size:17px;color:var(--purple);white-space:nowrap;transition:transform .15s,box-shadow .2s}
+  .pz-open:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(200,90,130,.26)}
+  .pz-open:active{transform:scale(.97)}
+  .pz-open .b{width:30px;height:23px;flex-shrink:0}
+  .pz-back{margin-top:2px;padding:6px 14px;border-radius:999px;background:var(--pink-soft);font-size:12px;font-weight:600;color:#c4577a;transition:.15s}
+  .pz-back:hover{background:#fbd3df}
   .puzzle{width:min(280px,76%);margin-top:0;padding:16px 16px 12px;border-radius:22px;background:rgba(255,255,255,.92);box-shadow:0 14px 40px rgba(200,90,130,.2);text-align:center}
   .pz-step{font-size:10px;font-weight:600;letter-spacing:.2em;color:var(--muted)}
   .pz-q{font-family:'DM Serif Display',serif;font-size:19px;line-height:1.25;margin:8px 0 12px}

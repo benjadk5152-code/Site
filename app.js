@@ -392,16 +392,21 @@ $('#pwForm').addEventListener('submit', async e=>{
 
 /* ---------- her way in: the puzzle ---------- */
 const PZ = SETTINGS.puzzle;
-let pzStep = 0;
+let pzStep = 0, pzWrong = 0;
 // "Toy Story 5", "toy story 5" and "toystory5!" all count as the same answer
 const normalize = s => s.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
 const shakeIt = n => { n.classList.remove('shake'); void n.offsetWidth; n.classList.add('shake'); };
-$('#puzzleOpen').textContent = fill(PZ.open);
+// a wrong answer: "try again" the first time, a little nudge from the second time on
+function pzFail(text){
+  pzWrong++; shakeIt($('#puzzle'));
+  $('#pzErr').textContent = text || fill(pzWrong >= 2 ? PZ.wrongTwice : PZ.wrong);
+}
+$('#puzzleOpenText').textContent = fill(PZ.open);
 $('#puzzleBack').textContent = fill(PZ.back);
 $('#puzzleOpen').onclick = ()=>{ $('#pwForm').hidden = true; $('#puzzle').hidden = false; pzStep = 0; renderPuzzle(); };
 $('#puzzleBack').onclick = ()=>{ $('#puzzle').hidden = true; $('#pwForm').hidden = false; $('#pw').focus(); };
 function renderPuzzle(){
-  const box = $('#pzBody'); box.innerHTML = ''; $('#pzErr').textContent = '';
+  const box = $('#pzBody'); box.innerHTML = ''; $('#pzErr').textContent = ''; pzWrong = 0;
   $('#pzStep').textContent = (pzStep+1)+' / '+(PZ.questions.length+1);
   if(pzStep < PZ.questions.length){
     // multiple choice: only the right answer leads to the next question
@@ -411,7 +416,7 @@ function renderPuzzle(){
       const b = el('button','pz-opt',o); b.type = 'button';
       b.onclick = ()=>{
         if(o===q.correct){ b.classList.add('right'); setTimeout(()=>{ pzStep++; renderPuzzle(); }, 500); }
-        else { b.classList.add('wrong'); shakeIt($('#puzzle')); $('#pzErr').textContent = fill(PZ.wrong); setTimeout(()=>b.classList.remove('wrong'), 700); }
+        else { b.classList.add('wrong'); pzFail(); setTimeout(()=>b.classList.remove('wrong'), 700); }
       };
       box.appendChild(b);
     });
@@ -424,12 +429,19 @@ function renderPuzzle(){
   form.append(input, go); box.appendChild(form); setTimeout(()=>input.focus(), 50);
   form.onsubmit = async e=>{
     e.preventDefault();
-    const answer = normalize(input.value); if(!answer) return;
+    const raw = input.value.trim(); if(!normalize(raw)) return;
     go.disabled = true; viaForm = true;
-    try{ await signInWithEmailAndPassword(auth, SETTINGS.herAccount, answer); }
-    catch(err){
-      viaForm = false; go.disabled = false; shakeIt($('#puzzle')); input.select();
-      $('#pzErr').textContent = err.code==='auth/too-many-requests' ? 'too many tries, wait a minute 🥺' : fill(PZ.wrong);
+    // the Firebase password should be the answer in lowercase without spaces ("toystory5"),
+    // but it also works if it was saved exactly as typed or in lowercase with spaces
+    const tries = [...new Set([normalize(raw), raw, raw.toLowerCase()])];
+    let ok = false, tooMany = false;
+    for(const answer of tries){
+      try{ await signInWithEmailAndPassword(auth, SETTINGS.herAccount, answer); ok = true; break; }
+      catch(err){ if(err.code==='auth/too-many-requests'){ tooMany = true; break; } }
+    }
+    if(!ok){
+      viaForm = false; go.disabled = false; input.select();
+      pzFail(tooMany ? fill(PZ.tooMany) : '');
     }
   };
 }
